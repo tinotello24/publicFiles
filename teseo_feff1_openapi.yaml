@@ -1,0 +1,642 @@
+openapi: 3.0.1
+info:
+  title: TESEO FEFF1
+  version: 1.0.0
+paths:
+  /teseo-api/metric/feff1/{exercise}/{run}:
+    get:
+      summary: Calculation of FEFF1 metric from phases and associated tracks with exercise and run
+      operationId: resolveFEFF1
+      parameters:
+        - name: exercise
+          in: path
+          description: Exercise short name.
+          required: true
+          schema:
+            type: string
+          example: FCA
+        - name: run
+          in: path
+          description: Run identifier.
+          required: true
+          schema:
+            type: string
+          example: run.01
+        - name: phasesVersion
+          in: query
+          description: Phases version
+          required: false
+          schema:
+            type: string
+          example: "1"
+        - name: source
+          in: query
+          description: Source
+          required: false
+          schema:
+            type: string
+            enum: [lastfp, track]
+            default: "track"
+          example: "lastfp"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuelConsumption'
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+      tags:
+        - FEFF1
+  /teseo-api/metric/feff1/{exercise}/{run}/forAnalysisSectors:
+    get:
+      summary: Calculation of FEFF1 metric for each sector from phases and associated tracks with exercise and run
+      operationId: resolveForEachSectorFEFF1
+      parameters:
+        - name: exercise
+          in: path
+          description: Exercise short name.
+          required: true
+          schema:
+            type: string
+          example: FCA
+        - name: run
+          in: path
+          description: Run identifier.
+          required: true
+          schema:
+            type: string
+          example: run.01
+        - name: phasesVersion
+          in: query
+          description: Phases version
+          required: false
+          schema:
+            type: string
+          example: "1"
+        - name: entriesVersion
+          in: query
+          description: Entries version
+          required: false
+          schema:
+            type: string
+          example: "1"
+        - name: source
+          in: query
+          description: Source
+          required: false
+          schema:
+            type: string
+            enum: [lastfp, track]
+            default: "track"
+          example: "lastfp"
+        - name: sectorsToAnalyze
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuelConsumptionForEachSector'
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+      tags:
+        - FEFF1
+  /teseo-api/metric/feff1/by-phases:
+    post:
+      summary: Calculation of FEFF1 metric from phases
+      operationId: computeFEFF1ByPhases
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FEFF1RequestBodyByPhase'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuelConsumption'
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+      tags:
+        - FEFF1
+
+  /teseo-api/metric/feff1/by-track:
+    post:
+      summary: Calculation of FEFF1 metric from track
+      operationId: computeFEFF1ByTrack
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FEFF1RequestBodyByTrack'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuelConsumption'
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+      tags:
+        - FEFF1
+
+  /teseo-api/metric/feff1/by-flight-plan:
+    post:
+      summary: Calculation of FEFF1 metric from flight plan
+      operationId: computeFEFF1ByFlightPlan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FEFF1RequestBodyByFlightPlan'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FuelConsumption'
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+      tags:
+        - FEFF1
+
+  /teseo-api/metric/feff1/{exercise}/{run}/settings:
+    get:
+      summary: Get the relationship between metric and phases version
+      operationId: getSettings
+      parameters:
+        - name: exercise
+          in: path
+          description: Exercise short name.
+          required: true
+          schema:
+            type: string
+          example: FCA
+        - name: run
+          in: path
+          description: Run identifier.
+          required: true
+          schema:
+            type: string
+          example: run.01
+        - name: source
+          in: query
+          description: Source
+          required: false
+          schema:
+            type: string
+            enum: [lastfp, track]
+            default: "track"
+          example: "lastfp"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+      tags:
+        - FEFF1
+    post:
+      summary: Set the relationship between metric and phases version
+      operationId: setSettings
+      parameters:
+        - name: exercise
+          in: path
+          description: Exercise short name.
+          required: true
+          schema:
+            type: string
+          example: FCA
+        - name: run
+          in: path
+          description: Run identifier.
+          required: true
+          schema:
+            type: string
+          example: run.01
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Settings'
+      responses:
+        '201':
+          description: Successfully
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+      tags:
+        - FEFF1
+components:
+  schemas:
+    FEFF1RequestBodyByPhase:
+      type: array
+      items:
+        properties:
+          callsign:
+            example: "WZZ3TC"
+            type: string
+          adep:
+            example: "LEMD"
+            type: string
+          ades:
+            example: "LRCL"
+            type: string
+          aircraftType:
+            type: string
+            example: "A332"
+          FlightPhases:
+            $ref: '#/components/schemas/FlightPhases'
+          TrackByPhase:
+            type: array
+            items:
+              $ref: '#/components/schemas/TrackByPhase'
+    FEFF1RequestBodyByTrack:
+      type: array
+      items:
+        properties:
+          RTkey:
+            example: 5649326
+            type: integer
+          RTkey2:
+            example: 5649326
+            type: integer
+          callsign:
+            example: "WZZ3TC"
+            type: string
+          departureAerodrome:
+            example: "LEMD"
+            type: string
+          arrivalAerodrome:
+            example: "LRCL"
+            type: string
+          tracks:
+            type: array
+            items:
+              $ref: '#/components/schemas/Track'
+    FEFF1RequestBodyByFlightPlan:
+      type: array
+      items:
+        properties:
+          callsign:
+            example: "WZZ3TC"
+            type: string
+          adep:
+            example: "LEMD"
+            type: string
+          ades:
+            example: "LRCL"
+            type: string
+          Phases:
+            $ref: '#/components/schemas/FlightPlan'
+    TrackByPhase:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: float
+          example: 40.501667
+        longitude:
+          type: number
+          format: float
+          example: -3.5536104440689087
+        instant:
+          type: string
+          format: date-time
+          example: "2022-10-20T08:31:59Z"
+        altitudeInFeets:
+          type: integer
+          example: 1950
+
+    FlightPhases:
+      type: object
+      properties:
+        startClimb:
+          type: string
+          format: date-time
+          example: "2022-10-20T08:03:44.000Z"
+        endClimb:
+          type: string
+          format: date-time
+          example: "2022-10-20T08:03:44.000Z"
+        startCruise:
+          type: string
+          format: date-time
+          example: "2022-10-20T08:03:44.000Z"
+        endCruise:
+          type: string
+          format: date-time
+          example: "2022-10-20T08:03:44.000Z"
+        startDescent:
+          type: string
+          format: date-time
+          example: "2022-10-20T08:03:44.000Z"
+        endDescent:
+          type: string
+          format: date-time
+          example: "2022-10-20T08:03:44.000Z"
+        toc:
+          type: string
+          format: date-time
+          example: "2022-10-20T08:03:44.000Z"
+        tod:
+          type: string
+          format: date-time
+          example: "2022-10-20T08:03:44.000Z"
+        fl30Climb:
+          type: string
+          format: date-time
+          example: "2022-10-20T08:03:44.000Z"
+        fl30Descent:
+          type: string
+          format: date-time
+          example: "2022-10-20T08:03:44.000Z"
+
+    Track:
+      type: object
+      properties:
+        cruiseAltitudeInFeets:
+          type: string
+        cruiseSpeed:
+          type: string
+        flightType:
+          type: string
+        aircraftType:
+          type: string
+          example: "B734"
+        aircraftRegistration:
+          type: string
+        numberOfEngines:
+          type: string
+        aircraftWake:
+          type: string
+        trackInstant:
+          type: string
+          format: date-time
+          example: "2022-10-20T08:31:59Z"
+        latitude:
+          type: number
+          format: float
+          example: 40.501667
+        longitude:
+          type: number
+          format: float
+          example: -3.5536104440689087
+        altitudeInFeets:
+          type: integer
+          example: 1950
+        heading:
+          type: number
+          format: float
+          example: 0.99975586
+        moduleSpeedInKnots:
+          type: number
+          format: float
+          example: 6.3174944
+        xSpeedInKnots:
+          type: number
+          format: float
+          example: 0
+        ySpeedInKnots:
+          type: number
+          format: float
+          example: 6.317494600431965
+        verticalSpeedInKnots:
+          type: number
+          format: float
+          example: 0
+        location:
+          $ref: '#/components/schemas/Location'
+    FlightPlan:
+      type: object
+      properties:
+        _id:
+          type: object
+          properties:
+            $oid:
+              type: string
+              example: "665428f6b3daf3de9b5d44bc"
+        MessageID:
+          type: string
+          example: "E_OUT_SDD_DISTRIBUTION"
+        Timestamp:
+          type: string
+          example: "2022-10-20 07:45:42.447"
+        Simulated_Time:
+          type: string
+          example: "2022-10-20 07:45:42.451"
+        R_FLIGHT_ID:
+          type: string
+          example: "8784"
+        R_ACID:
+          type: string
+          example: "ACR81"
+        R_ADEP:
+          type: string
+          example: "LECU"
+        R_EOBT:
+          type: string
+          example: "2022-10-20 08:54:00.000"
+        R_EOBD:
+          type: string
+          example: ""
+        R_ADES:
+          type: string
+          example: "LESA"
+        R_AIRCRAFT_TYPE:
+          type: string
+          example: "PA34"
+        R_CREATION_TIME:
+          type: string
+          example: "2022-10-20 07:45:41.897"
+        R_LAST_OVERFLOWN:
+          type: string
+          example: "0"
+        R_TOC:
+          type: string
+          example: "4"
+        R_TOD:
+          type: string
+          example: "16"
+        R_SEQUENCE_SPL:
+          type: object
+          properties:
+            R_POINTS:
+              type: object
+              properties:
+                R_POINT:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/RPoint'
+            R_SECTORS:
+              type: object
+              properties:
+                R_SECTOR:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/RSector'
+    RPoint:
+      type: object
+      properties:
+        R_PROGRESSION_INDEX:
+          type: string
+          example: "1"
+        R_POINT_POSITION:
+          type: string
+          example: "1"
+        R_TIME_OVER:
+          type: string
+          example: "2022-10-20 08:54:00.000"
+        R_TIME_KIND:
+          type: string
+          example: "E_MANUAL"
+        R_LONGITUDE:
+          type: string
+          example: "0034707W"
+        R_LATITUDE:
+          type: string
+          example: "402214N"
+        R_LEVEL:
+          type: string
+          example: "0"
+        R_ROUTE_NAME:
+          type: string
+          example: "LECU"
+    RSector:
+      type: object
+      properties:
+        R_SECTOR_POSITION:
+          type: string
+          example: "1"
+        R_SECTOR:
+          type: string
+          example: "170"
+        R_SECTOR_NAME:
+          type: string
+          example: "BSTWECU"
+        R_ENTRY_POINTER:
+          type: string
+          example: "1"
+        R_EXIT_POINTER:
+          type: string
+          example: "2"
+    Location:
+      type: object
+      properties:
+        type:
+          type: string
+          example: "Point"
+        coordinates:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+          example: [40.501667, -3.5536104440689087]
+    FuelConsumptionForEachSector:   
+      type: array
+      items:
+        type: object
+        properties:
+          callsign:
+            type: string
+            example: IBE09LV
+          adep:
+            type: string
+            example: LEMD
+          ades:
+            type: string
+            example: LEBL
+          sectorName:
+            type: string
+            example: LECMR1I
+          aircraftType:
+            type: string
+            example: B772
+          phase:
+            type: string
+            example: CLIMB
+          from:
+            type: string
+            format: date-time
+            example: 2022-10-20T06:31:32.000Z
+          to:
+            type: string
+            format: date-time
+            example: 2022-10-20T06:32:08.000Z
+          fuel:
+            type: number
+            example: 26.45336
+    FuelConsumption:
+      type: array
+      items:
+        type: object
+        properties:
+          callsign:
+            type: string
+            example: IBE09LV
+          adep:
+            type: string
+            example: LEMD
+          ades:
+            type: string
+            example: LEBL
+          aircraftType:
+            type: string
+            example: B772
+          phase:
+            type: string
+            example: CLIMB
+          from:
+            type: string
+            format: date-time
+            example: 2022-10-20T06:31:32.000Z
+          to:
+            type: string
+            format: date-time
+            example: 2022-10-20T06:32:08.000Z
+          fuel:
+            type: number
+            example: 26.45336
+    Settings:
+      type: object
+      properties:
+          phasesVersion:
+            type: string
+            example: "1"
+          source:
+            type: string
+            enum: [lastfp, track]
+            example: "track"
